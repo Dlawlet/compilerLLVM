@@ -8,6 +8,7 @@ import Main.Symbol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,9 +35,7 @@ public class Parser {
         reducedGrammar.removeLeftRecursion();
         reducedGrammar.leftFactor();
         this.grammar = reducedGrammar;
-        //System.out.println(this.grammar.toString());
         this.actionTable = new ActionTable(reducedGrammar);
-        System.out.println(actionTable);
         this.symbolList = symbolList;
         this.terminalsMap = terminalsMap;
         this.variablesNumbers =  this.grammar.findVariablesNumbers();
@@ -145,18 +144,29 @@ public class Parser {
 
     /**
      * This method recursively builds the parse tree from the start symbol
-     * and returns the latex representation of it
      *
-     * @return the latex representation of the parse tree
+     * @return the parse tree that is built
      */
-    public String parse() throws Exception{
+    public ParseTree parse() throws Exception{
         this.index = 0;
         ParseTree parseTree = buildParseTree(grammar.getStartSymbol());
-        String str = "";
-        for(int i = 0; i < rulesSequence.size(); i++){str += rulesSequence.get(i) + " ";}
-        System.out.println(str);
-        return parseTree.toLaTeX();
+        return parseTree;
     }
 
+
+    /**
+     * This method builds an abstract tree from a given parse tree
+     *
+     * @param tree the parse tree from which the abstract tree is built
+     */
+    public void buildAST(ParseTree tree){
+        Set<LexicalUnit> terminalUnits = new HashSet<>();
+        Set<String> terminals = new HashSet<>(Arrays.asList(
+                "begin", "end", "...", "",
+                ":=", "if", "then", "else", "{","}",
+                "while", "print", "read", "do", "(", ")"));
+        for(String terminal : terminals){terminalUnits.add(terminalsMap.get(terminal));}
+        AST.toAST(tree, grammar.getVariables(), terminalUnits, terminals);
+    }
 
 }

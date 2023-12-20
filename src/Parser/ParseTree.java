@@ -4,6 +4,7 @@ import Main.Symbol;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * A skeleton class to represent parse trees. The arity is not fixed: a node can
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 public class ParseTree {
     private Symbol label; // The label of the root of the tree
     private List<ParseTree> children; // Its children, which are trees themselves
-
+    protected ParseTree father = null;
     /**
      * Creates a singleton tree with only a root labeled by lbl.
      * 
@@ -40,8 +41,21 @@ public class ParseTree {
     public ParseTree(Symbol lbl, List<ParseTree> chdn) {
         this.label = lbl;
         this.children = chdn;
+        for(ParseTree child : this.children){child.setFather(this);}
+
     }
 
+    //Getters
+    public Symbol getLabel(){return label;}
+    public List<ParseTree> getChildren(){return children;}
+    public ParseTree getFather(){return father;}
+
+    //Setters
+    public void setLabel(Symbol label){this.label = label;}
+    public void setChildren(List<ParseTree> children){this.children = children;}
+    public void setFather(ParseTree father){this.father = father;}
+
+    
     /**
      * Writes the tree as LaTeX code
      */

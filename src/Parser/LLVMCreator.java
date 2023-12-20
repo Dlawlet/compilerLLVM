@@ -15,7 +15,7 @@ public class LLVMCreator{
     int tmpCounter = 0;
 
 
-    public LLVMWriter(ParseTree parseTree){
+    public LLVMCreator(ParseTree parseTree){
         this.parseTree = parseTree;
         this.variables = new HashSet<>();
         buildOperationsMap();

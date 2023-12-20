@@ -2,76 +2,29 @@ package Main;
 
 import Grammar.Grammar;
 import Grammar.PmpGrammar;
+import Parser.LLVMCreator;
+import Parser.ParseTree;
 import Parser.Parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Main {
     /**
-     * This method reads the file given as argument and writes on the standard output stream
-     * the leftmost derivation and optionally writes the parse tree in the specified latex file
+     * This method reads the file given as argument and writes on the standard output stream the corresponding llvm code
      *
-     * @param args the arguments of the program ({arg[0], arg[1], arg[2]} = {sourceFile.pmp, "", ""} or {-wt, sourceFile.tex, sourceFile.pmp})
+     * @param args the arguments of the program arg[0] = inputFile
      * @throws Exception the exception thrown if a problem occurs during the execution of the method
      */
     public static void main(String[] args) throws Exception{
-        if(args.length < 1 || args.length > 3){
-            System.out.println("Usage: java -jar part2.jar sourceFile.pmp\n"
-                    + "or     java -jar part2.jar -wt sourceFile.tex sourceFile.pmp");
+        if(args.length != 1){
+            System.out.println("Usage: java -jar part3.jar inputFile");
             System.exit(0);
         }
-
-        String destinationFile = null;
-        for(int i = 0; i < args.length - 1; ++i){
-            if(args[i].equals("-wt")){destinationFile = args[i+1];}
-        }
-        
-        LexicalAnalyzer analyzer  = new LexicalAnalyzer(new java.io.FileReader(args[args.length - 1]));
-        ArrayList<Symbol> symbolList = getTokens(analyzer);
-
-        Grammar G = new PmpGrammar();
-
-        Map<String, LexicalUnit> terminalsMap = new HashMap<String, LexicalUnit>(){
-            {
-                put("begin", LexicalUnit.BEG );
-                put("end", LexicalUnit.END);
-                put("...", LexicalUnit.DOTS);
-                put("[VarName]", LexicalUnit.VARNAME);
-                put(":=", LexicalUnit.ASSIGN);
-                put("[Number]", LexicalUnit.NUMBER);
-                put("(", LexicalUnit.LPAREN);
-                put(")", LexicalUnit.RPAREN);
-                put("{", LexicalUnit.LBRACK);
-                put("}", LexicalUnit.RBRACK);
-                put("and", LexicalUnit.AND);
-                put("or", LexicalUnit.OR);
-                put("-", LexicalUnit.MINUS);
-                put("+", LexicalUnit.PLUS);
-                put("*", LexicalUnit.TIMES);
-                put("/", LexicalUnit.DIVIDE);
-                put("if", LexicalUnit.IF);
-                put("then", LexicalUnit.THEN);
-                put("else", LexicalUnit.ELSE);
-                put("=", LexicalUnit.EQUAL);
-                put("<", LexicalUnit.SMALLER);
-                put("while", LexicalUnit.WHILE);
-                put("do", LexicalUnit.DO);
-                put("print", LexicalUnit.PRINT);
-                put("read", LexicalUnit.READ);
-            }
-        };
-
-        Parser parser = new Parser(G, symbolList, terminalsMap);
-        String latexParseTree = parser.parse();
-        if(destinationFile != null){
-            FileCreator file = new FileCreator();
-            file.createFile(destinationFile);
-            file.setContent(destinationFile, latexParseTree);
-        }
+        parseFile(args[args.length - 1]);
     }
-
 
     /**
      * This method reads the content of a file and extracts the tokens to put them in a list
@@ -94,7 +47,6 @@ public class Main {
         return tokenList;
     }
 
-    // Part3 code :
     /**
      * This method prints the tokens of a given symbol list
      *
@@ -111,7 +63,7 @@ public class Main {
         }
     }
 
-
+    
     /**
      * This method extracts the variables from an array of symbols and create a TreeMap containing these symbols
      *
@@ -130,7 +82,6 @@ public class Main {
         return variables;
     }
  
-
     /**
      * This method prints the variables table
      *
@@ -145,9 +96,8 @@ public class Main {
         }
     }
 
-
     /**
-     * This method builds a terminal map associating the terminals of the PascalMP grammar
+     * This method builds a terminal map associating the terminals of the FORTRESS grammar
      * with the corresponding lexical units
      *
      * @return the terminal map built
@@ -155,14 +105,16 @@ public class Main {
     private static Map<String, LexicalUnit> getTerminalsMap(){
         Map<String, LexicalUnit> terminalsMap = new HashMap<String, LexicalUnit>(){
             {
-                put("begin", LexicalUnit.BEG );
+                put("begin", LexicalUnit.BEG);
+                put("...", LexicalUnit.DOTS);
                 put("end", LexicalUnit.END);
-                put(",", LexicalUnit.COMMA);
                 put("[VarName]", LexicalUnit.VARNAME);
                 put(":=", LexicalUnit.ASSIGN);
                 put("[Number]", LexicalUnit.NUMBER);
                 put("(", LexicalUnit.LPAREN);
                 put(")", LexicalUnit.RPAREN);
+                put("{", LexicalUnit.LBRACK);
+                put("}", LexicalUnit.RBRACK);
                 put("-", LexicalUnit.MINUS);
                 put("+", LexicalUnit.PLUS);
                 put("*", LexicalUnit.TIMES);
@@ -171,9 +123,7 @@ public class Main {
                 put("then", LexicalUnit.THEN);
                 put("else", LexicalUnit.ELSE);
                 put("and", LexicalUnit.AND);
-                put("or", LexicalUnit.OR);
-                put("{", LexicalUnit.LBRACK);
-                put("}", LexicalUnit.RBRACK);
+                put("or",LexicalUnit.OR);
                 put("=", LexicalUnit.EQUAL);
                 put("<", LexicalUnit.SMALLER);
                 put("while", LexicalUnit.WHILE);
@@ -185,7 +135,6 @@ public class Main {
         return terminalsMap;
     }
 
-
     /**
      * This method parses a given file, produces and prints the corresponding llvm code
      *
@@ -195,15 +144,14 @@ public class Main {
     private static void parseFile(String fileName) throws Exception{
         LexicalAnalyzer analyzer  = new LexicalAnalyzer(new java.io.FileReader(fileName));
         ArrayList<Symbol> symbolList = getTokens(analyzer);
-        Grammar G = new FortressGrammar();
+        Grammar G = new PmpGrammar();
         Map<String, LexicalUnit> terminalsMap = getTerminalsMap();
         Parser parser = new Parser(G, symbolList, terminalsMap);
         ParseTree parseTree = parser.parse();
         parser.buildAST(parseTree);
-        LLVMWriter llvmWriter = new LLVMWriter(parseTree);
-        System.out.println(llvmWriter.getCode());
+        LLVMCreator llvmCreator = new LLVMCreator(parseTree);
+        System.out.println(llvmCreator.getCode());
     }
 
-
-
 }
+
