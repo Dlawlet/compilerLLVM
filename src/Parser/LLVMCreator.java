@@ -23,7 +23,7 @@ public class LLVMCreator{
         this.variables = new HashSet<>();
         buildOperationsMap();
         buildCode();
-        traversal(parseTree);
+        mapping(parseTree);
         this.code += "ret i32 0\n" + "}\n";
     }
 
@@ -138,10 +138,11 @@ public class LLVMCreator{
 
 
     /**
-     * This method evaluates an ExprArith and returns the name of a variable that contains the evaluation of the expression
-     *
-     * @param tree the parse tree containing the ExprArith to be evaluated
-     * @return varName the name of the variable that contains the evaluation of the expression
+     * Helper method that evaluates an expression and returns the name of the variable that contains the result of the evaluation
+     * 
+     * @param tree the parse tree containing the expression to be evaluated
+     * @return the name of the variable that contains the result of the evaluation
+     * 
      */
     private String evaluateExpression(ParseTree tree){
         String varName = null;
@@ -177,8 +178,7 @@ public class LLVMCreator{
             else{varName = tree.getLabel().getValue() + "";}
         }
         return varName;
-    }
-
+    } 
 
     /**
      * This method tries to allocate a new variable if its name was not already met before
@@ -279,7 +279,7 @@ public class LLVMCreator{
             return "cond" + tmpCounter;
         }
         
-    }
+    } 
 
 
     /**
@@ -330,7 +330,7 @@ public class LLVMCreator{
         produceLabel(ifLabel);
         for(int i = 1; i < last; i++){
             ParseTree child = tree.getChildren().get(i);
-            traversal(child);
+            mapping(child);
         }
         unCondJump(exitLabel);
         if(last != tree.getChildren().size()){
@@ -338,7 +338,7 @@ public class LLVMCreator{
             ParseTree elseStatements = tree.getChildren().get(tree.getChildren().size() - 1);
             for(int i = 0; i < elseStatements.getChildren().size(); i++){
                 ParseTree child = elseStatements.getChildren().get(i);
-                traversal(child);
+                mapping(child);
             }
             unCondJump(exitLabel);
         }
@@ -360,12 +360,12 @@ public class LLVMCreator{
         produceLabel(whileLabel);
         for(int i = 1; i < tree.getChildren().size(); i++){
             ParseTree child = tree.getChildren().get(i);
-            traversal(child);
+            mapping(child);
         }
         conditionName = evaluateCondition(condition);
         condjump(conditionName, whileLabel, exitLabel);
         produceLabel(exitLabel);
-    }
+    } //
 
 
     /**
@@ -373,7 +373,7 @@ public class LLVMCreator{
      *
      * @param tree the parse tree whose llvm code is written
      */
-    private void traversal(ParseTree tree){
+    private void mapping(ParseTree tree){
         if(tree.getLabel().getValue().equals("<Assign>")){assignStatement(tree);}
         else if(tree.getLabel().getValue().equals("<Print>")){printStatement(tree);}
         else if(tree.getLabel().getValue().equals("<Read>")){readStatement(tree);}
@@ -382,7 +382,7 @@ public class LLVMCreator{
         else{
             for(int i = 0; i < tree.getChildren().size(); i++){
                 ParseTree child = tree.getChildren().get(i);
-                traversal(child);
+                mapping(child);
             }
         }
     }

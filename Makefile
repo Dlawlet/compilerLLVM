@@ -18,6 +18,9 @@ test_incorrectIf:
 test_badread: 
 	java -jar dist/part3.jar  test/TestBadRead.pmp
 
+test_euclid:
+	java -jar dist/part3.jar  test/euclid.pmp
+
 all: compiler test_goodpmp
 
 	

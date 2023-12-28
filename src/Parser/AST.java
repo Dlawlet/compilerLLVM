@@ -71,8 +71,7 @@ public class AST{
 
 
     /**
-     * This method removes the terminals from a given parse tree
-     *
+     * Helper method for the toAST method that removes the terminals from a given parse tree
      * @param tree the parse tree from which the terminals are removed
      * @param V the set of variables of the considered grammar
      * @param terminalUnits the set of lexical units associated with the terminals of the grammar
@@ -89,7 +88,7 @@ public class AST{
                 if(V.contains(child.getLabel().getValue())){removeTerminals(child, V, terminalUnits, T);}
             }
         }
-    }
+    } 
 
 
     /**
@@ -132,15 +131,16 @@ public class AST{
             ParseTree child = tree.getChildren().get(i);
             removeUselessVariable(child, uselessVariables);
         }
-    }
+    } // in this function we simply iterate over the children of a given tree and remove the useless variables from it (the useless variables are the ones that are in the set of useless variables) and we do this until there are no more useless variables left in the tree 
 
 
     /**
-     * This method handles the left associativity for the operations having the same priority in a given parse tree
-     *
-     * @param tree the parse tree in which the left associativity of the operations is handled
-     * @param multiplyOperators the operators of multiplication and division of the grammar
-     * @param addOperators the operators of addition and subtraction of the grammar
+     * here we handle the left associativity of the operators
+     * @param tree the parse tree to handle the left associativity of
+     * @param multiplyOperators the set of multiply operators of the considered grammar
+     * @param addOperators the set of add operators of the considered grammar
+     * @param booleanOperators the set of boolean operators of the considered grammar
+     * @return the parse tree with the left associativity handled
      */
     private static void handleLeftAssociativity(ParseTree tree, Set<String> multiplyOperators, Set<String> addOperators){
         if(tree.getChildren().size() > 1){
@@ -177,7 +177,7 @@ public class AST{
             ParseTree child = tree.getChildren().get(i);
             handleLeftAssociativity(child, multiplyOperators, addOperators);
         }
-    }
+    } 
 
 
     /**
