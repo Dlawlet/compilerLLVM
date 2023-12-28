@@ -1,10 +1,12 @@
 package Parser;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import Main.FileCreator;
 import Main.LexicalUnit;
 
 public class LLVMCreator{
@@ -13,6 +15,7 @@ public class LLVMCreator{
     Set<String> variables;
     String code = "";
     int tmpCounter = 0;
+    int condCounter = 0;
 
 
     public LLVMCreator(ParseTree parseTree){
@@ -37,9 +40,8 @@ public class LLVMCreator{
             put("/", "sdiv");
             put("=","eq");
             put("<","slt");
-            put("and", "and");
-            put("or", "or");
-            
+            put("and","and");  
+            put("or","or");           
         }};
     }
 
@@ -85,6 +87,7 @@ public class LLVMCreator{
     private String produceNewVarName(){
         String varName = tmpCounter + "";
         tmpCounter++;
+        condCounter = 0;
         return varName;
     }
 
@@ -96,7 +99,13 @@ public class LLVMCreator{
      * @param value the object pointing to the value which is loaded in the variable
      */
     private void loadVariable(String varName, Object value){
-        this.code += "%" + varName + " = load i32, i32* %" + value + "\n";
+        // if value = %condX then it is a binary condition then no need to load it
+        if (value.toString().contains("cond")) {
+
+        }
+        else {
+            this.code += "%" + varName + " = load i32, i32* %" + value + "\n";
+        }
     }
 
 
@@ -236,14 +245,40 @@ public class LLVMCreator{
     private String evaluateCondition(ParseTree condition){
         ParseTree leftTree = condition.getChildren().get(0);
         ParseTree rightTree = condition.getChildren().get(1);
-        String left = evaluateExpression(leftTree);
-        String right = evaluateExpression(rightTree);
-        String newLeft =  produceNewVarName();
-        loadVariable(newLeft, left);
-        String newRight = produceNewVarName();
-        loadVariable(newRight, right);
-        this.code += "%cond" + tmpCounter + " = icmp " + operationsMap.get(condition.getLabel().getValue()) + " i32 %" + newLeft + " , %" + newRight + "\n";
-        return "cond" + tmpCounter;
+
+        // Check if the children are conditions themselves
+        String left, right;
+        System.out.println(leftTree.getLabel().getValue() + " " + rightTree.getLabel().getValue());
+        if (leftTree.getLabel().getValue().equals("and") || leftTree.getLabel().getValue().equals("or") || leftTree.getLabel().getValue().equals("=") || leftTree.getLabel().getValue().equals("<")) {
+            System.out.println("left is a sub condition");    
+            left = evaluateCondition(leftTree);
+            } 
+        else {
+                left = evaluateExpression(leftTree);
+            }
+        if (rightTree.getLabel().getValue().equals("and") || rightTree.getLabel().getValue().equals("or") || rightTree.getLabel().getValue().equals("=") || rightTree.getLabel().getValue().equals("<")) {
+            System.out.println("right is a sub condition");   
+            right = evaluateCondition(rightTree);
+            } 
+        else {
+                right = evaluateExpression(rightTree);
+            }
+        System.out.println(left + " "+ operationsMap.get(condition.getLabel().getValue()) + " " + right);
+        
+        if (condition.getLabel().getValue().equals("and") || condition.getLabel().getValue().equals("or")) {
+            this.condCounter++;
+            this.code += "%cond" + tmpCounter + condCounter + " = " + operationsMap.get(condition.getLabel().getValue()) + " i1 %" + left + " , %" + right + "\n";
+            return "cond" + tmpCounter + condCounter;
+        } 
+        else {
+            String newLeft =  produceNewVarName();
+            loadVariable(newLeft, left);
+            String newRight = produceNewVarName();
+            loadVariable(newRight, right);
+            this.code += "%cond" + tmpCounter + " = icmp " + operationsMap.get(condition.getLabel().getValue()) + " i32 %" + newLeft + " , %" + newRight + "\n";
+            return "cond" + tmpCounter;
+        }
+        
     }
 
 

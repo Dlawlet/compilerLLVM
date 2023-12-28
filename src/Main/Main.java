@@ -149,6 +149,7 @@ public class Main {
         Parser parser = new Parser(G, symbolList, terminalsMap);
         ParseTree parseTree = parser.parse();
         parser.buildAST(parseTree);
+        
         LLVMCreator llvmCreator = new LLVMCreator(parseTree);
         System.out.println(llvmCreator.getCode());
     }

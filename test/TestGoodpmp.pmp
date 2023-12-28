@@ -4,6 +4,7 @@ begin
 ''
 ** A Short comment
 read(value)...
+**value := 1...
 var1 := 23...           
 print(var1)...
 ''
@@ -22,9 +23,15 @@ if value < var1 then
         print (varprint)
     end
 else 
-    if var1 = value or var2 = var1 and var2 < var4 then
-        var8 := var8 - 1
+    if  var1 = value or var2 = var1 and var2 < var4  then
+        begin 
+            var8 := var8 - 1...
+            print(var8)
+        end
     else
         while var1 < value do
-	        var1 := var1 + 1
+            begin
+                var1 := var1 + 1...
+                print(var1)
+            end
 end

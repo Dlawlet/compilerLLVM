@@ -142,14 +142,14 @@ public class AST{
      * @param multiplyOperators the operators of multiplication and division of the grammar
      * @param addOperators the operators of addition and subtraction of the grammar
      */
-    private static void handleLeftAssociativity(ParseTree tree, Set<String> multiplyOperators, Set<String> addOperators, Set<String> booleanOperators){
+    private static void handleLeftAssociativity(ParseTree tree, Set<String> multiplyOperators, Set<String> addOperators){
         if(tree.getChildren().size() > 1){
             Object value = tree.getLabel().getValue();
             Object rightChildValue = tree.getChildren().get(1).getLabel().getValue();
             boolean isMultiplyOperator = multiplyOperators.contains(value) && multiplyOperators.contains(rightChildValue);
             boolean isAddOperator = addOperators.contains(value) && addOperators.contains(rightChildValue);
-            boolean isBooleanOperator = booleanOperators.contains(value) && booleanOperators.contains(rightChildValue);
-            if(isMultiplyOperator || isAddOperator || isBooleanOperator){
+            //boolean isBooleanOperator = booleanOperators.contains(value) && booleanOperators.contains(rightChildValue);
+            if(isMultiplyOperator || isAddOperator ){
                 ParseTree rightTree = tree.getChildren().get(1);
                 ParseTree rightLeftChild = rightTree.getChildren().get(0);
                 ParseTree father = tree.getFather();
@@ -175,7 +175,7 @@ public class AST{
         }
         for(int i = 0; i < tree.getChildren().size(); i++){
             ParseTree child = tree.getChildren().get(i);
-            handleLeftAssociativity(child, multiplyOperators, addOperators, booleanOperators);
+            handleLeftAssociativity(child, multiplyOperators, addOperators);
         }
     }
 
@@ -210,12 +210,12 @@ public class AST{
         removeTerminals(tree, V, terminalUnits, T);
         HashSet<String> operators = new HashSet<>(Arrays.asList("+", "<", "-", "=", "*", "/", "and", "or"));
         pullOperatorsUp(tree, operators);
-        Set<String> removeVariable = new HashSet<>(Arrays.asList("<ExprArith>'", "<ExprArith>''", "<T>'", "<T>''", "<T>", "<U>","<cond>'", "<cond>''", "<V>", "<W>", "<V>'", "<V>''"));
+        Set<String> removeVariable = new HashSet<>(Arrays.asList( "<ExprArith>'", "<ExprArith>''", "<T>'", "<T>''", "<T>", "<U>","<Cond>", "<Cond>'", "<Cond>''", "<V>", "<W>", "<V>'", "<V>''"));
         removeUselessVariable(tree, removeVariable);
         HashSet<String> multiplyOperators = new HashSet<>(Arrays.asList("*", "/"));
         HashSet<String> addOperators = new HashSet<>(Arrays.asList("+", "-"));
-        HashSet<String> booleanOperators = new HashSet<>(Arrays.asList("and", "or"));
-        handleLeftAssociativity(tree, multiplyOperators, addOperators, booleanOperators);
+        //HashSet<String> booleanOperators = new HashSet<>(Arrays.asList("and", "or"));
+        handleLeftAssociativity(tree, multiplyOperators, addOperators);
         cleanTree(tree);
     }
 

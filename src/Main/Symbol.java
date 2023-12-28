@@ -77,10 +77,19 @@ public class Symbol{
 	 * @return a latex representation of the Symbol
 	 */
 	public String toTexString(){
-		if(this.type != null && (this.type.equals(LexicalUnit.VARNAME) || this.type.equals(LexicalUnit.NUMBER) )){
+		String value = "";
+		if(this.isTerminal()){
+            if (this.type == LexicalUnit.VARNAME || this.type == LexicalUnit.NUMBER) {
+                value = this.value != null? ": "+this.value.toString() : "";
+            }
+			return type+value;
+		} else {
+			if(this.type != null && (this.type.equals(LexicalUnit.VARNAME) || this.type.equals(LexicalUnit.NUMBER) )){
 			return this.type + " " + this.value;
+			}
+			else{return "$" + this.value + "$";}
 		}
-		else{return "$" + this.value + "$";}
+		//return "UNREACHABLE RETURN";
 	}
 
 }
