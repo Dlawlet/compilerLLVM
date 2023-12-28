@@ -30,6 +30,7 @@ public class PmpGrammar extends Grammar {
                 "{","}",
                 "=", "<",
                 "while", "do",
+                "for",
                 "print",
                 "read"));
         this.setTerminals(T);
@@ -55,6 +56,7 @@ public class PmpGrammar extends Grammar {
                 "<SimpleCond>",
                 "<Comp>",
                 "<While>",
+                "<For>",
                 "<Print>",
                 "<Read>"));
         this.setVariables(new HashSet<>(V));
@@ -165,6 +167,10 @@ public class PmpGrammar extends Grammar {
         tmp = new ArrayList<>(Arrays.asList(
                 new ArrayList<>(Arrays.asList("while", "<Cond>", "do", "<Instruction>"))));
         P.put("<While>" ,tmp);
+
+        tmp = new ArrayList<>(Arrays.asList(
+                new ArrayList<>(Arrays.asList("for", "(","<Assign>","...", "<Assign>","...","<SimpleCond>",")", "do", "<Instruction>"))));
+        P.put("<For>" ,tmp); 
 
 
         tmp = new ArrayList<>(Arrays.asList(

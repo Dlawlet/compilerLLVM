@@ -23,6 +23,7 @@ public enum LexicalUnit{
     EQUAL,
     SMALLER,
     WHILE,
+    FOR, 
     DO,
     PRINT,
     READ,

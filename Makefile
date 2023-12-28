@@ -21,6 +21,8 @@ test_badread:
 test_euclid:
 	java -jar dist/part3.jar  test/euclid.pmp
 
+test_for:
+	java -jar dist/part3.jar  test/TestFor.pmp
 all: compiler test_goodpmp
 
 	

@@ -86,6 +86,9 @@ UpToEnd        = ({Any}{EndLine}) | ({EndLine})
 // Loop keywords
   "while"             {return new Symbol(LexicalUnit.WHILE, yyline, yycolumn, yytext());}
   "do"                {return new Symbol(LexicalUnit.DO, yyline, yycolumn, yytext());}
+// For keywords
+  "for"               {return new Symbol(LexicalUnit.FOR, yyline, yycolumn, yytext());}
+  "do"                {return new Symbol(LexicalUnit.DO, yyline, yycolumn, yytext());}
 // Comparison operators
   "="                 {return new Symbol(LexicalUnit.EQUAL, yyline, yycolumn, yytext());}
   "<"                 {return new Symbol(LexicalUnit.SMALLER, yyline, yycolumn, yytext());}

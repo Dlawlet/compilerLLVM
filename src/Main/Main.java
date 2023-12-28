@@ -127,6 +127,7 @@ public class Main {
                 put("=", LexicalUnit.EQUAL);
                 put("<", LexicalUnit.SMALLER);
                 put("while", LexicalUnit.WHILE);
+                put("for", LexicalUnit.FOR);
                 put("do", LexicalUnit.DO);
                 put("print", LexicalUnit.PRINT);
                 put("read", LexicalUnit.READ);

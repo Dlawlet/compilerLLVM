@@ -8,6 +8,7 @@ import java.util.Set;
 
 import Main.FileCreator;
 import Main.LexicalUnit;
+import Main.Symbol;
 
 public class LLVMCreator{
     ParseTree parseTree;
@@ -248,22 +249,18 @@ public class LLVMCreator{
 
         // Check if the children are conditions themselves
         String left, right;
-        System.out.println(leftTree.getLabel().getValue() + " " + rightTree.getLabel().getValue());
         if (leftTree.getLabel().getValue().equals("and") || leftTree.getLabel().getValue().equals("or") || leftTree.getLabel().getValue().equals("=") || leftTree.getLabel().getValue().equals("<")) {
-            System.out.println("left is a sub condition");    
             left = evaluateCondition(leftTree);
             } 
         else {
                 left = evaluateExpression(leftTree);
             }
         if (rightTree.getLabel().getValue().equals("and") || rightTree.getLabel().getValue().equals("or") || rightTree.getLabel().getValue().equals("=") || rightTree.getLabel().getValue().equals("<")) {
-            System.out.println("right is a sub condition");   
             right = evaluateCondition(rightTree);
             } 
         else {
                 right = evaluateExpression(rightTree);
             }
-        System.out.println(left + " "+ operationsMap.get(condition.getLabel().getValue()) + " " + right);
         
         if (condition.getLabel().getValue().equals("and") || condition.getLabel().getValue().equals("or")) {
             this.condCounter++;
@@ -367,7 +364,35 @@ public class LLVMCreator{
         produceLabel(exitLabel);
     } //
 
+    /** 
+     * This method writes the code of a For statement
+     * 
+     * @param tree the parse tree containing the For instruction
+     */
+     private void forStatement(ParseTree tree){
+        // "for", "<Assign>", "<ExprArith>", "Cond", "do", "<Instruction>"
+        // first we call initial assignStatement
+        assignStatement(tree.getChildren().get(0));
+        ParseTree condition = tree.getChildren().get(2);
+        String forLabel = "for" + tmpCounter;
+        String exitLabel = "exitFor" + tmpCounter;
+        String conditionName = evaluateCondition(condition);
+        condjump(conditionName, forLabel, exitLabel);
+        produceLabel(forLabel);
+        for(int i = 3; i < tree.getChildren().size(); i++){
+            ParseTree child = tree.getChildren().get(i);
+            mapping(child);
+        } // this is the set of instructions
 
+        assignStatement(tree.getChildren().get(1));
+
+        // then we evaluate the condition again
+        conditionName = evaluateCondition(condition);
+        condjump(conditionName, forLabel, exitLabel);
+        produceLabel(exitLabel);
+
+        } 
+        
     /**
      * This method traverses a given parse tree and writes the corresponding llvm code
      *
@@ -379,6 +404,7 @@ public class LLVMCreator{
         else if(tree.getLabel().getValue().equals("<Read>")){readStatement(tree);}
         else if(tree.getLabel().getValue().equals("<If>")){ifStatement(tree);}
         else if(tree.getLabel().getValue().equals("<While>")){whileStatement(tree);}
+        else if(tree.getLabel().getValue().equals("<For>")){forStatement(tree);}
         else{
             for(int i = 0; i < tree.getChildren().size(); i++){
                 ParseTree child = tree.getChildren().get(i);

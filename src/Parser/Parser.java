@@ -162,7 +162,7 @@ public class Parser {
     public void buildAST(ParseTree tree){
         Set<LexicalUnit> terminalUnits = new HashSet<>();
         Set<String> terminals = new HashSet<>(Arrays.asList(
-                "begin", "end", "...","",
+                "begin", "end", "...","for",
                 ":=", "if", "then", "else", "{","}",
                 "while", "print", "read", "do", "(", ")"));
         for(String terminal : terminals){terminalUnits.add(terminalsMap.get(terminal));}
